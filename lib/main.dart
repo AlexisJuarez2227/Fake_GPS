@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
@@ -14,6 +15,7 @@ class UbicacionVerificadaApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: UbicacionScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -26,11 +28,22 @@ class UbicacionScreen extends StatefulWidget {
 class _UbicacionScreenState extends State<UbicacionScreen> {
   final Location location = Location();
   String _estadoGps = 'Verificando...';
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    verificarUbicacion();
+    // Inicia el Timer para verificar cada 10 segundos
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      verificarUbicacion();
+    });
+    verificarUbicacion(); // Verificación inicial al iniciar la app
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancelar el timer al salir del widget
+    super.dispose();
   }
 
   Future<void> verificarUbicacion() async {
