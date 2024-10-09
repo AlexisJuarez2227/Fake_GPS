@@ -13,6 +13,14 @@ class UbicacionVerificadaApp extends StatelessWidget {
       title: 'Verificación de Ubicación',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: TextTheme(
+          headlineLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          bodyLarge: TextStyle(fontSize: 18, color: Colors.white),
+        ),
       ),
       home: UbicacionScreen(),
       debugShowCheckedModeBanner: false,
@@ -28,23 +36,6 @@ class UbicacionScreen extends StatefulWidget {
 class _UbicacionScreenState extends State<UbicacionScreen> {
   final Location location = Location();
   String _estadoGps = 'Verificando...';
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    // Inicia el Timer para verificar cada 10 segundos
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      verificarUbicacion();
-    });
-    verificarUbicacion(); // Verificación inicial al iniciar la app
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel(); // Cancelar el timer al salir del widget
-    super.dispose();
-  }
 
   Future<void> verificarUbicacion() async {
     bool servicioHabilitado;
@@ -92,12 +83,49 @@ class _UbicacionScreenState extends State<UbicacionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Verificación de Ubicación'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: Center(
-        child: Text(
-          _estadoGps,
-          style: TextStyle(fontSize: 24, color: Colors.black),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blueAccent, Colors.lightBlueAccent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _estadoGps == 'Ubicación Real'
+                    ? Icons.check_circle_outline
+                    : Icons.warning_amber_outlined,
+                color: _estadoGps == 'Ubicación Real' ? Colors.green : Colors.red,
+                size: 100,
+              ),
+              SizedBox(height: 20),
+              Text(
+                _estadoGps,
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Presiona el botón para verificar...',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          verificarUbicacion();
+        },
+        label: Text('Reintentar'),
+        icon: Icon(Icons.refresh),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }
